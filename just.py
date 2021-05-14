@@ -8,8 +8,11 @@ class TocEditor:
 
     def __init__(self):
         self.root = Tk()
+
         self.root.title('Just')
         self.root.geometry('800x600')
+
+        self.fontsize = 16
 
         self.scroll_y = Scrollbar(self.root)
         self.scroll_y.pack(side=RIGHT, fill=Y)
@@ -17,7 +20,7 @@ class TocEditor:
         self.text = Text(self.root)
         self.text.configure(wrap=WORD)
         self.text.pack(side=LEFT, expand=True, fill=BOTH)
-        self.text.configure(font=("Times", 16, "normal"))
+        self.text.configure(font=("Times", self.fontsize, "normal"))
         self.scroll_y.config(command=self.text.yview)
         self.text.config(yscrollcommand=self.scroll_y.set)
 
@@ -40,8 +43,8 @@ class TocEditor:
         self.editmenu.add_command(label="Paste (Ctrl+v)")
 
         self.settingsmenu = Menu(self.menubar, tearoff=0)
-        self.settingsmenu.add_command(label="Increase fontsize (Ctrl++)")
-        self.settingsmenu.add_command(label="Decrease fontsize (Ctrl+-)")
+        self.settingsmenu.add_command(label="Increase fontsize (Ctrl++)", command=lambda: self.fontsize_up("up"))
+        self.settingsmenu.add_command(label="Decrease fontsize (Ctrl+-)", command=lambda: self.fontsize_down("down"))
         self.settingsmenu.add_separator()
         self.settingsmenu.add_command(label="Light mode (Ctrl+l)", command=lambda: self.light_mode("light"))
         self.settingsmenu.add_command(label="Dark mode (Ctrl+d)", command=lambda: self.dark_mode("dark"))
@@ -55,6 +58,8 @@ class TocEditor:
 
         self.root.bind('<Control-l>', self.light_mode)
         self.root.bind('<Control-d>', self.dark_mode)
+        self.root.bind('<Control-plus>', self.fontsize_up)
+        self.root.bind('<Control-minus>', self.fontsize_down)
 
         self.text.focus()
 
@@ -65,6 +70,14 @@ class TocEditor:
 
     def light_mode(self, event):
       self.text.configure(background="white", foreground="black", insertbackground="black")
+
+    def fontsize_up(self, event):
+      self.fontsize += 2
+      self.text.configure(font=("Times", self.fontsize, "normal"))
+
+    def fontsize_down(self, event):
+      self.fontsize -= 2
+      self.text.configure(font=("Times", self.fontsize, "normal"))
 
     
 
