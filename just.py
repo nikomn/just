@@ -39,11 +39,6 @@ class TocEditor:
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Quit (Ctrl+q)", command=lambda: self.exit_quit("quit"))
 
-        self.editmenu = Menu(self.menubar, tearoff=0)
-        self.editmenu.add_command(label="Cut (Ctrl+x)")
-        self.editmenu.add_command(label="Copy (Ctrl+c)")
-        self.editmenu.add_command(label="Paste (Ctrl+v)")
-
         self.settingsmenu = Menu(self.menubar, tearoff=0)
         self.settingsmenu.add_command(label="Increase fontsize (Ctrl++)", command=lambda: self.fontsize_up("up"))
         self.settingsmenu.add_command(label="Decrease fontsize (Ctrl+-)", command=lambda: self.fontsize_down("down"))
@@ -53,7 +48,6 @@ class TocEditor:
         
 
         self.menubar.add_cascade(label="File", menu=self.filemenu)
-        self.menubar.add_cascade(label="Edit", menu=self.editmenu)
         self.menubar.add_cascade(label="Settings", menu=self.settingsmenu)
 
         self.root.config(menu=self.menubar)
@@ -72,7 +66,7 @@ class TocEditor:
         self.text.focus()
 
         self.root.mainloop()
-    
+        
     def dark_mode(self, event):
       self.text.configure(background="black", foreground="white", insertbackground="white")
 
@@ -134,6 +128,7 @@ class TocEditor:
         with open(self.filename, 'r') as content:
               for line in content.readlines():
                   saved_file.append(line.rstrip())
+        saved_file.append("")
         buffered_data = []
         text_data = self.text.get("1.0",END).split("\n")
         for line in text_data:
@@ -152,6 +147,10 @@ class TocEditor:
             self.text.delete("1.0",END)
             self.filename = ""
             self.root.title('Just [NEW FILE]')
+        else:
+          self.text.delete("1.0",END)
+          self.filename = ""
+          self.root.title('Just [NEW FILE]')
       else:
         text_data = self.text.get("1.0",END)
         #print(text_data)
@@ -214,7 +213,6 @@ class TocEditor:
                     file.write(self.text.get("1.0",END))
               
               self.root.quit()
-
 
     
 
