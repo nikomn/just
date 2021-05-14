@@ -2,8 +2,6 @@
 
 from tkinter import *
 from tkinter import filedialog
-import math
-import re
 
 
 class TocEditor:
@@ -45,8 +43,8 @@ class TocEditor:
         self.settingsmenu.add_command(label="Increase fontsize (Ctrl++)")
         self.settingsmenu.add_command(label="Decrease fontsize (Ctrl+-)")
         self.settingsmenu.add_separator()
-        self.settingsmenu.add_command(label="Light mode (Ctrl+d)")
-        self.settingsmenu.add_command(label="Dark mode (Ctrl+l)")
+        self.settingsmenu.add_command(label="Light mode (Ctrl+l)", command=lambda: self.light_mode("light"))
+        self.settingsmenu.add_command(label="Dark mode (Ctrl+d)", command=lambda: self.dark_mode("dark"))
         
 
         self.menubar.add_cascade(label="File", menu=self.filemenu)
@@ -55,9 +53,20 @@ class TocEditor:
 
         self.root.config(menu=self.menubar)
 
+        self.root.bind('<Control-l>', self.light_mode)
+        self.root.bind('<Control-d>', self.dark_mode)
+
         self.text.focus()
 
         self.root.mainloop()
+    
+    def dark_mode(self, event):
+      self.text.configure(background="black", foreground="white", insertbackground="white")
+
+    def light_mode(self, event):
+      self.text.configure(background="white", foreground="black", insertbackground="black")
+
+    
 
 if __name__ == "__main__":
     e = TocEditor()
