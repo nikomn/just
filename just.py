@@ -34,7 +34,7 @@ class TocEditor:
         self.filemenu.add_command(label="New (Ctrl+n)")
         self.filemenu.add_command(label="Open (Ctrl+o)", command=lambda: self.open_file("open"))
         self.filemenu.add_command(label="Save (Ctrl+s)", command=lambda: self.save_file("save"))
-        self.filemenu.add_command(label="Save as (Ctrl+Shift+s)")
+        self.filemenu.add_command(label="Save as (Ctrl+Shift+s)", command=lambda: self.save_file_as("save-as"))
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Quit (Ctrl+q)")
 
@@ -64,6 +64,7 @@ class TocEditor:
 
         self.root.bind('<Control-o>', self.open_file)
         self.root.bind('<Control-s>', self.save_file)
+        self.root.bind('<Control-Shift-S>', self.save_file_as)
 
         self.text.focus()
 
@@ -97,10 +98,26 @@ class TocEditor:
     def save_file(self, event):
       if self.filename == "":
         filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-        if filename != None:
-          self.filename = filename
         #print(filename)
+        #print(type(filename))
+        if filename != () and filename != "" and filename != None:
+          self.filename = filename
+          if not self.filename.lower().endswith(".txt"):
+            self.filename = self.filename + ".txt"
+          if self.filename.endswith(".TXT"):
+            self.filename = self.filename[:-4] + ".txt"
       if self.filename != "":
+        with open(self.filename, 'w') as file:
+          file.write(self.text.get("1.0",END))
+
+    def save_file_as(self, event):
+      filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
+      if filename != () and filename != "" and filename != None:
+        self.filename = filename
+        if not self.filename.lower().endswith(".txt"):
+            self.filename = self.filename + ".txt"
+        if self.filename.endswith(".TXT"):
+          self.filename = self.filename[:-4] + ".txt"
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
 
