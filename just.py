@@ -33,7 +33,7 @@ class TocEditor:
         self.filemenu = Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="New (Ctrl+n)")
         self.filemenu.add_command(label="Open (Ctrl+o)", command=lambda: self.open_file("open"))
-        self.filemenu.add_command(label="Save (Ctrl+s)")
+        self.filemenu.add_command(label="Save (Ctrl+s)", command=lambda: self.save_file("save"))
         self.filemenu.add_command(label="Save as (Ctrl+Shift+s)")
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Quit (Ctrl+q)")
@@ -63,6 +63,7 @@ class TocEditor:
         self.root.bind('<Control-minus>', self.fontsize_down)
 
         self.root.bind('<Control-o>', self.open_file)
+        self.root.bind('<Control-s>', self.save_file)
 
         self.text.focus()
 
@@ -92,6 +93,16 @@ class TocEditor:
           
           self.filename = file_to_read.name
           self.text.mark_set("insert", "%d.%d" % (1, 0))
+
+    def save_file(self, event):
+      if self.filename == "":
+        filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
+        if filename != None:
+          self.filename = filename
+        #print(filename)
+      if self.filename != "":
+        with open(self.filename, 'w') as file:
+          file.write(self.text.get("1.0",END))
 
     
 
