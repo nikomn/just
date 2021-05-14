@@ -32,12 +32,12 @@ class TocEditor:
 
         # Menu
         self.filemenu = Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label="New (Ctrl+n)")
+        self.filemenu.add_command(label="New (Ctrl+n)", command=lambda: self.new_file("new"))
         self.filemenu.add_command(label="Open (Ctrl+o)", command=lambda: self.open_file("open"))
         self.filemenu.add_command(label="Save (Ctrl+s)", command=lambda: self.save_file("save"))
         self.filemenu.add_command(label="Save as (Ctrl+Shift+s)", command=lambda: self.save_file_as("save-as"))
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Quit (Ctrl+q)")
+        self.filemenu.add_command(label="Quit (Ctrl+q)", command=lambda: self.exit_quit("quit"))
 
         self.editmenu = Menu(self.menubar, tearoff=0)
         self.editmenu.add_command(label="Cut (Ctrl+x)")
@@ -67,6 +67,7 @@ class TocEditor:
         self.root.bind('<Control-o>', self.open_file)
         self.root.bind('<Control-s>', self.save_file)
         self.root.bind('<Control-Shift-S>', self.save_file_as)
+        self.root.bind('<Control-q>', self.exit_quit)
 
         self.text.focus()
 
@@ -167,12 +168,52 @@ class TocEditor:
                   self.filename = self.filename[:-4] + ".txt"
                 with open(self.filename, 'w') as file:
                   file.write(self.text.get("1.0",END))
-                self.root.title('Just [NEW FILE]')
-        self.text.delete("1.0",END)
-        self.filename = ""
-        self.root.title('Just [NEW FILE]')
+            
+            self.text.delete("1.0",END)
+            self.filename = ""
+            self.root.title('Just [NEW FILE]')
           
-
+    def exit_quit(self, event):
+        # No good, but something to start with...
+        text_data = self.text.get("1.0",END)
+        #print(text_data)
+        if self.filename == "" and self.text.get("1.0",END) == "\n":
+          self.root.quit()
+        if self.filename != "":
+          saved_file = []
+          with open(self.filename, 'r') as content:
+                for line in content.readlines():
+                    saved_file.append(line.rstrip())
+          buffered_data = []
+          text_data = self.text.get("1.0",END).split("\n")
+          for line in text_data:
+            buffered_data.append(line)
+          if buffered_data != saved_file:
+            confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before quitting?")
+            if confirm != None:
+              if confirm:
+                with open(self.filename, 'w') as file:
+                  file.write(self.text.get("1.0",END))
+              
+              self.root.quit()
+        else:
+          text_data = self.text.get("1.0",END)
+          #print(text_data)
+          if self.text.get("1.0",END) != "\n":
+            confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
+            if confirm != None:
+              if confirm:
+                filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
+                if filename != () and filename != "" and filename != None:
+                  self.filename = filename
+                  if not self.filename.lower().endswith(".txt"):
+                    self.filename = self.filename + ".txt"
+                  if self.filename.endswith(".TXT"):
+                    self.filename = self.filename[:-4] + ".txt"
+                  with open(self.filename, 'w') as file:
+                    file.write(self.text.get("1.0",END))
+              
+              self.root.quit()
 
 
     
