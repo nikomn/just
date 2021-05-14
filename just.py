@@ -13,6 +13,7 @@ class TocEditor:
         self.root.geometry('800x600')
 
         self.fontsize = 16
+        self.filename = ""
 
         self.scroll_y = Scrollbar(self.root)
         self.scroll_y.pack(side=RIGHT, fill=Y)
@@ -31,7 +32,7 @@ class TocEditor:
         # Menu
         self.filemenu = Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="New (Ctrl+n)")
-        self.filemenu.add_command(label="Open (Ctrl+o)")
+        self.filemenu.add_command(label="Open (Ctrl+o)", command=lambda: self.open_file("open"))
         self.filemenu.add_command(label="Save (Ctrl+s)")
         self.filemenu.add_command(label="Save as (Ctrl+Shift+s)")
         self.filemenu.add_separator()
@@ -61,6 +62,8 @@ class TocEditor:
         self.root.bind('<Control-plus>', self.fontsize_up)
         self.root.bind('<Control-minus>', self.fontsize_down)
 
+        self.root.bind('<Control-o>', self.open_file)
+
         self.text.focus()
 
         self.root.mainloop()
@@ -78,6 +81,17 @@ class TocEditor:
     def fontsize_down(self, event):
       self.fontsize -= 2
       self.text.configure(font=("Times", self.fontsize, "normal"))
+
+    def open_file(self, event):
+        file_to_read = filedialog.askopenfile(mode="r", filetypes=[("Text files", "*.txt")])
+        if file_to_read != None:
+          self.text.delete("1.0",END)
+          with open(file_to_read.name, 'r') as content:
+              for line in content.readlines():
+                  self.text.insert(END, line)
+          
+          self.filename = file_to_read.name
+          self.text.mark_set("insert", "%d.%d" % (1, 0))
 
     
 
