@@ -9,6 +9,7 @@ manual = "Basic functions:\
           \nCopy: Ctrl+c\
           \nCut : Ctrl+x\
           \nPaste: Ctrl+p\
+          \nSelect all: Ctrl+a\
           \n\
           \nFontsize up: Ctrl++\
           \nFontsize down: Ctrl+-\
@@ -122,6 +123,8 @@ class TocEditor:
         self.root.bind('<Control-Shift-S>', self.save_file_as)
         self.root.bind('<Control-q>', self.exit_quit)
 
+        self.root.bind('<Control-a>', self.select_all)
+
         self.root.protocol("WM_DELETE_WINDOW", self.exit_button_pressed)
 
         self.text.focus()
@@ -151,6 +154,10 @@ class TocEditor:
     def fontsize_down(self, event):
       self.fontsize -= 2
       self.text.configure(font=("Times", self.fontsize, "normal"))
+
+    def select_all(self, event):
+      self.text.tag_add(SEL, '1.0', END)
+      self.text.mark_set('insert', END)
 
     def open_file(self, event):
         file_to_read = filedialog.askopenfile(mode="r", filetypes=[("Text files", "*.txt")])
