@@ -4,6 +4,21 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
 
+def get_valid_filename():
+  filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
+  print(filename)
+  if filename == () or filename == "":
+    #print("Cancel pressed")
+    return ""
+  else:
+    if not filename.lower().endswith(".txt"):
+      filename = filename + ".txt"
+    if filename.endswith(".TXT"):
+      filename = filename[:-4] + ".txt"
+    filename = filename.replace(" ", "_")
+    #print("Filename set to", filename)
+    return filename
+
 
 class TocEditor:
 
@@ -63,8 +78,10 @@ class TocEditor:
         self.root.bind('<Control-Shift-S>', self.save_file_as)
         self.root.bind('<Control-q>', self.exit_quit)
 
-        self.text.focus()
+        #self.root.bind('<Control-w>', self.get_valid_filename)
 
+        self.text.focus()
+        
         self.root.mainloop()
         
     def dark_mode(self, event):
@@ -96,15 +113,8 @@ class TocEditor:
 
     def save_file(self, event):
       if self.filename == "":
-        filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-        #print(filename)
-        #print(type(filename))
-        if filename != () and filename != "" and filename != None:
-          self.filename = filename
-          if not self.filename.lower().endswith(".txt"):
-            self.filename = self.filename + ".txt"
-          if self.filename.endswith(".TXT"):
-            self.filename = self.filename[:-4] + ".txt"
+        filename = get_valid_filename()
+        self.filename = filename
       if self.filename != "":
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
@@ -112,13 +122,9 @@ class TocEditor:
         self.text.edit_modified(False)
 
     def save_file_as(self, event):
-      filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-      if filename != () and filename != "" and filename != None:
+      filename = get_valid_filename()
+      if filename != "":
         self.filename = filename
-        if not self.filename.lower().endswith(".txt"):
-            self.filename = self.filename + ".txt"
-        if self.filename.endswith(".TXT"):
-          self.filename = self.filename[:-4] + ".txt"
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
         self.root.title('Just [' + self.filename + "]")
@@ -184,6 +190,9 @@ class TocEditor:
                     file.write(self.text.get("1.0",END))
               
               self.root.quit()
+
+    
+
 
     
 
