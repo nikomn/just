@@ -4,6 +4,20 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
 
+def get_valid_filename():
+  filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
+  if filename == () or filename == "":
+    #print("Cancel pressed")
+    return ""
+  else:
+    if not filename.lower().endswith(".txt"):
+      filename = filename + ".txt"
+    if filename.endswith(".TXT"):
+      filename = filename[:-4] + ".txt"
+    filename = filename.replace(" ", "_")
+    #print("Filename set to", filename)
+    return filename
+
 
 class TocEditor:
 
@@ -63,10 +77,16 @@ class TocEditor:
         self.root.bind('<Control-Shift-S>', self.save_file_as)
         self.root.bind('<Control-q>', self.exit_quit)
 
-        self.text.focus()
+        self.root.protocol("WM_DELETE_WINDOW", self.exit_button_pressed)
 
+        self.text.focus()
+        
         self.root.mainloop()
         
+    def exit_button_pressed(self):
+      self.exit_quit("x")
+    
+    
     def dark_mode(self, event):
       self.text.configure(background="black", foreground="white", insertbackground="white")
 
@@ -92,129 +112,88 @@ class TocEditor:
           self.filename = file_to_read.name
           self.root.title('Just [' + self.filename + "]")
           self.text.mark_set("insert", "%d.%d" % (1, 0))
+          self.text.edit_modified(False)
 
     def save_file(self, event):
       if self.filename == "":
-        filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-        #print(filename)
-        #print(type(filename))
-        if filename != () and filename != "" and filename != None:
-          self.filename = filename
-          if not self.filename.lower().endswith(".txt"):
-            self.filename = self.filename + ".txt"
-          if self.filename.endswith(".TXT"):
-            self.filename = self.filename[:-4] + ".txt"
+        filename = get_valid_filename()
+        self.filename = filename
       if self.filename != "":
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
         self.root.title('Just [' + self.filename + "]")
+        self.text.edit_modified(False)
 
     def save_file_as(self, event):
-      filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-      if filename != () and filename != "" and filename != None:
+      filename = get_valid_filename()
+      if filename != "":
         self.filename = filename
-        if not self.filename.lower().endswith(".txt"):
-            self.filename = self.filename + ".txt"
-        if self.filename.endswith(".TXT"):
-          self.filename = self.filename[:-4] + ".txt"
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
         self.root.title('Just [' + self.filename + "]")
+        self.text.edit_modified(False)
 
     def new_file(self, event):
-      # Test file for onsaved changes, naive implementation
-      if self.filename != "":
-        saved_file = []
-        with open(self.filename, 'r') as content:
-              for line in content.readlines():
-                  saved_file.append(line.rstrip())
-        saved_file.append("")
-        buffered_data = []
-        text_data = self.text.get("1.0",END).split("\n")
-        for line in text_data:
-          buffered_data.append(line)
-        #print(saved_file)
-        #print(buffered_data)
-        if buffered_data != saved_file:
-          # None, False, True
+      clear_answer_recived = False
+      if self.text.edit_modified():
+        while not clear_answer_recived:
           confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
-          #print(confirm)
           if confirm != None:
             if confirm:
-              with open(self.filename, 'w') as file:
-                file.write(self.text.get("1.0",END))
+              if self.filename == "":
+                filename = get_valid_filename()
+                self.filename = filename
+              if self.filename != "":
+                clear_answer_recived = True
+                with open(self.filename, 'w') as file:
+                  file.write(self.text.get("1.0",END))
+            else:
+              clear_answer_recived = True
+          else:
+            clear_answer_recived = True
             
-            self.text.delete("1.0",END)
-            self.filename = ""
-            self.root.title('Just [NEW FILE]')
-        else:
           self.text.delete("1.0",END)
           self.filename = ""
           self.root.title('Just [NEW FILE]')
+          self.text.edit_modified(False)
       else:
-        text_data = self.text.get("1.0",END)
-        #print(text_data)
-        if self.text.get("1.0",END) != "\n":
-          confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
-          if confirm != None:
-            if confirm:
-              filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-              if filename != () and filename != "" and filename != None:
-                self.filename = filename
-                if not self.filename.lower().endswith(".txt"):
-                  self.filename = self.filename + ".txt"
-                if self.filename.endswith(".TXT"):
-                  self.filename = self.filename[:-4] + ".txt"
-                with open(self.filename, 'w') as file:
-                  file.write(self.text.get("1.0",END))
-            
-            self.text.delete("1.0",END)
-            self.filename = ""
-            self.root.title('Just [NEW FILE]')
+        self.text.delete("1.0",END)
+        self.filename = ""
+        self.root.title('Just [NEW FILE]')
+        self.text.edit_modified(False)
+      
           
     def exit_quit(self, event):
-        # No good, but something to start with...
-        text_data = self.text.get("1.0",END)
-        #print(text_data)
-        if self.filename == "" and self.text.get("1.0",END) == "\n":
-          self.root.quit()
-        if self.filename != "":
-          saved_file = []
-          with open(self.filename, 'r') as content:
-                for line in content.readlines():
-                    saved_file.append(line.rstrip())
-          buffered_data = []
-          text_data = self.text.get("1.0",END).split("\n")
-          for line in text_data:
-            buffered_data.append(line)
-          if buffered_data != saved_file:
-            confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before quitting?")
-            if confirm != None:
-              if confirm:
+      clear_answer_recived = False
+      if self.text.edit_modified():
+        while not clear_answer_recived:
+          confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save before quitting?")
+          if confirm != None:
+            # Yes / No
+            if confirm:
+              # Yes
+              if self.filename == "":
+                filename = get_valid_filename()
+                self.filename = filename
+              if self.filename != "":
+                # Yes, and filename given, all clear
+                clear_answer_recived = True
                 with open(self.filename, 'w') as file:
                   file.write(self.text.get("1.0",END))
-              
+                  self.root.quit()
+              else:
+                # Yes, but no filename given, unclear what is wanted
+                clear_answer_recived = False
+            else:
+              # No, no saving needed, all clear
+              clear_answer_recived = True
               self.root.quit()
-        else:
-          text_data = self.text.get("1.0",END)
-          #print(text_data)
-          if self.text.get("1.0",END) != "\n":
-            confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
-            if confirm != None:
-              if confirm:
-                filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-                if filename != () and filename != "" and filename != None:
-                  self.filename = filename
-                  if not self.filename.lower().endswith(".txt"):
-                    self.filename = self.filename + ".txt"
-                  if self.filename.endswith(".TXT"):
-                    self.filename = self.filename[:-4] + ".txt"
-                  with open(self.filename, 'w') as file:
-                    file.write(self.text.get("1.0",END))
-              
-              self.root.quit()
+          else:
+            # Cancel, answer clear, do not close
+            clear_answer_recived = True
+      else:
+        self.root.quit()
 
-    
 
 if __name__ == "__main__":
     e = TocEditor()
