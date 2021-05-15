@@ -4,6 +4,46 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
 
+manual = "Basic functions:\
+          \n\
+          \nCopy: Ctrl+c\
+          \nCut : Ctrl+x\
+          \nPaste: Ctrl+p\
+          \n\
+          \nFontsize up: Ctrl++\
+          \nFontsize down: Ctrl+-\
+          \n\
+          \nDark theme: Ctrl+d\
+          \nLight theme: Ctrl+l\
+          \n\
+          \nSave: Ctrl+s\
+          \nSave as: Ctrl+Shift+s\
+          \n\
+          \nOpen file: Ctrl+o\
+          \nNew file: Ctrl+n\
+          \nClose: Ctrl+q\
+          "
+
+about = "What is Just?:\
+          \n\
+          \nJust is... just a text editor. It's not a Word Processor \
+          \nor an IDE or even a code editor. It's just a text editor, \
+          \nnothing more, nothing less.\
+          \n\
+          \nFeatures include:\
+          \n- Cross platform, written in Python with Tkinter\
+          \n- Save file / Save file as...\
+          \n- Open existing files\
+          \n- Create new file\
+          \n- Editing works with ctrl+c/x/v\
+          \n- Fontsize can be adjusted\
+          \n- Dark and Light modes\
+          \n\
+          \n\
+          \nSource code can be found from\
+          https://github.com/nikomn/just\
+          "
+
 def get_valid_filename():
   filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
   if filename == () or filename == "":
@@ -59,10 +99,15 @@ class TocEditor:
         self.settingsmenu.add_separator()
         self.settingsmenu.add_command(label="Light mode (Ctrl+l)", command=lambda: self.light_mode("light"))
         self.settingsmenu.add_command(label="Dark mode (Ctrl+d)", command=lambda: self.dark_mode("dark"))
+
+        self.helpmenu = Menu(self.menubar, tearoff=0)
+        self.helpmenu.add_command(label="Help", command=lambda: self.show_help("help"))
+        self.helpmenu.add_command(label="About", command=lambda: self.show_about("about"))
         
 
         self.menubar.add_cascade(label="File", menu=self.filemenu)
         self.menubar.add_cascade(label="Settings", menu=self.settingsmenu)
+        self.menubar.add_cascade(label="Help", menu=self.helpmenu)
 
         self.root.config(menu=self.menubar)
 
@@ -85,6 +130,12 @@ class TocEditor:
         
     def exit_button_pressed(self):
       self.exit_quit("x")
+
+    def show_help(self, event):
+      messagebox.showinfo("Help", manual)
+
+    def show_about(self, event):
+      messagebox.showinfo("Just", about)
     
     
     def dark_mode(self, event):
