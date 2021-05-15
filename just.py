@@ -77,12 +77,16 @@ class TocEditor:
         self.root.bind('<Control-Shift-S>', self.save_file_as)
         self.root.bind('<Control-q>', self.exit_quit)
 
-        #self.root.bind('<Control-w>', self.get_valid_filename)
+        self.root.protocol("WM_DELETE_WINDOW", self.exit_button_pressed)
 
         self.text.focus()
         
         self.root.mainloop()
         
+    def exit_button_pressed(self):
+      self.exit_quit("x")
+    
+    
     def dark_mode(self, event):
       self.text.configure(background="black", foreground="white", insertbackground="white")
 
@@ -165,20 +169,28 @@ class TocEditor:
         while not clear_answer_recived:
           confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save before quitting?")
           if confirm != None:
+            # Yes / No
             if confirm:
+              # Yes
               if self.filename == "":
                 filename = get_valid_filename()
                 self.filename = filename
               if self.filename != "":
+                # Yes, and filename given, all clear
                 clear_answer_recived = True
                 with open(self.filename, 'w') as file:
                   file.write(self.text.get("1.0",END))
+                  self.root.quit()
+              else:
+                # Yes, but no filename given, unclear what is wanted
+                clear_answer_recived = False
             else:
+              # No, no saving needed, all clear
               clear_answer_recived = True
+              self.root.quit()
           else:
+            # Cancel, answer clear, do not close
             clear_answer_recived = True
-            
-          self.root.quit()
       else:
         self.root.quit()
 
