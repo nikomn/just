@@ -131,12 +131,21 @@ class TocEditor:
         self.text.edit_modified(False)
 
     def new_file(self, event):
+      clear_answer_recived = False
       if self.text.edit_modified():
-        confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
-        if confirm != None:
-          if confirm:
-              with open(self.filename, 'w') as file:
-                file.write(self.text.get("1.0",END))
+        while not clear_answer_recived:
+          confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
+          if confirm != None:
+            if confirm:
+              if self.filename == "":
+                filename = get_valid_filename()
+                self.filename = filename
+              if self.filename != "":
+                clear_answer_recived = True
+                with open(self.filename, 'w') as file:
+                  file.write(self.text.get("1.0",END))
+            else:
+              clear_answer_recived = True
             
           self.text.delete("1.0",END)
           self.filename = ""
