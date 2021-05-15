@@ -92,6 +92,7 @@ class TocEditor:
           self.filename = file_to_read.name
           self.root.title('Just [' + self.filename + "]")
           self.text.mark_set("insert", "%d.%d" % (1, 0))
+          self.text.edit_modified(False)
 
     def save_file(self, event):
       if self.filename == "":
@@ -108,6 +109,7 @@ class TocEditor:
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
         self.root.title('Just [' + self.filename + "]")
+        self.text.edit_modified(False)
 
     def save_file_as(self, event):
       filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
@@ -120,57 +122,26 @@ class TocEditor:
         with open(self.filename, 'w') as file:
           file.write(self.text.get("1.0",END))
         self.root.title('Just [' + self.filename + "]")
+        self.text.edit_modified(False)
 
     def new_file(self, event):
-      # Test file for onsaved changes, naive implementation
-      if self.filename != "":
-        saved_file = []
-        with open(self.filename, 'r') as content:
-              for line in content.readlines():
-                  saved_file.append(line.rstrip())
-        saved_file.append("")
-        buffered_data = []
-        text_data = self.text.get("1.0",END).split("\n")
-        for line in text_data:
-          buffered_data.append(line)
-        #print(saved_file)
-        #print(buffered_data)
-        if buffered_data != saved_file:
-          # None, False, True
-          confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
-          #print(confirm)
-          if confirm != None:
-            if confirm:
+      if self.text.edit_modified():
+        confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
+        if confirm != None:
+          if confirm:
               with open(self.filename, 'w') as file:
                 file.write(self.text.get("1.0",END))
             
-            self.text.delete("1.0",END)
-            self.filename = ""
-            self.root.title('Just [NEW FILE]')
-        else:
           self.text.delete("1.0",END)
           self.filename = ""
           self.root.title('Just [NEW FILE]')
+          self.text.edit_modified(False)
       else:
-        text_data = self.text.get("1.0",END)
-        #print(text_data)
-        if self.text.get("1.0",END) != "\n":
-          confirm = messagebox.askyesnocancel("Unsaved changes", "Unsaved changes found! Do you want to save file before creating new file?")
-          if confirm != None:
-            if confirm:
-              filename = filedialog.asksaveasfilename(filetypes=[("Text files", "*.txt")])
-              if filename != () and filename != "" and filename != None:
-                self.filename = filename
-                if not self.filename.lower().endswith(".txt"):
-                  self.filename = self.filename + ".txt"
-                if self.filename.endswith(".TXT"):
-                  self.filename = self.filename[:-4] + ".txt"
-                with open(self.filename, 'w') as file:
-                  file.write(self.text.get("1.0",END))
-            
-            self.text.delete("1.0",END)
-            self.filename = ""
-            self.root.title('Just [NEW FILE]')
+        self.text.delete("1.0",END)
+        self.filename = ""
+        self.root.title('Just [NEW FILE]')
+        self.text.edit_modified(False)
+      
           
     def exit_quit(self, event):
         # No good, but something to start with...
