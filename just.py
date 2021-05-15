@@ -27,17 +27,21 @@ manual = "Basic functions:\
 
 about = "What is Just?:\
           \n\
-          \nJust is... just a text editor. It's not a Word Processor \
-          \nor an IDE or even a code editor. It's just a text editor, \
-          \nnothing more, nothing less.\
+          \nJust is... just a text editor. \
+          It's not a Word Processor \
+          or an IDE or even a code editor.\
+          It's just a text editor,\
+          nothing more, nothing less.\
           \n\
           \nFeatures include:\
           \n- Cross platform, written in Python with Tkinter\
-          \n- Save file / Save file as...\
+          \n- Save file/Save file as...\
           \n- Open existing files\
           \n- Create new file\
-          \n- Editing works with ctrl+c/x/v\
-          \n- Fontsize can be adjusted\
+          \n- Editing works with \
+          \n  ctrl+a/c/x/v\
+          \n- Fontsize can be \
+          \n  adjusted\
           \n- Dark and Light modes\
           \n\
           \n\
